@@ -1,0 +1,81 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+struct Student {
+    std::string name, surname;
+    int day, month, year;
+};
+
+std::vector<Student> create (int N) {
+    std::vector<Student> students;
+    students.reserve(N);
+    for (int i = 0; i < N; ++i) {
+        std::string name = "", surname = "";
+        int day  = 0, month  = 0, year = 0;
+        std::cin >> name >> surname >> day >> month >> year;
+        Student stud{name, surname, day, month, year};
+        students.push_back(stud);
+    }
+    return students;
+}
+
+bool compdate(Student& a, Student& b) {
+    if (a.year != b.year) return (a.year < b.year);
+    if (a.month != b.month) return (a.month < b.month);
+    return a.day < b.day;
+}
+bool normcompdate(Student& a, Student& b) {
+    if (compdate(a, b)) return true;
+    if (compdate(b, a)) return false;
+    if (a.surname != b.surname) return (a.surname < b.surname);
+    return (a.name < b.name);
+}
+bool compname(Student& a, Student& b) {
+    if (a.surname != b.surname) return (a.surname < b.surname);
+    if (a.name != b.name) return (a.name < b.name);
+    return compdate( a, b);
+}
+
+
+void sort(std::vector<Student*>& p, std::string& key) {
+    if (p.size() == 0) return;
+    bool (*func)(Student& a, Student& b) = (key == "name") ? compname : normcompdate;
+    for (auto i = 0; i < (p.size() - 1); ++i) {
+        bool flag = false;
+        for (auto j = 0; j < (p.size() - i - 1); ++j) {
+            if (func(*p[j+1], *p[j])) {
+                Student* otchislen = p[j];
+                p[j] = p[j + 1];
+                p[j + 1] = otchislen;
+                flag = true;
+            }
+        }
+        if (!flag) break;
+    }
+
+}
+
+int main() {
+    int N;
+    std::string key = "";
+
+    std::cin >> N;
+    std::vector <Student> students = create(N);
+    std::cin >> key;
+
+    std::vector<Student*> p;
+    p.reserve(N);
+
+    for (auto& s : students) {
+        p.push_back(&s);
+    }
+
+    sort(p, key);
+
+    for (int i = 0; i < p.size(); ++i) {
+        std::cout << p[i]->name << " " << p[i]->surname << " "
+        << p[i]->day << "." << p[i]->month << "." << p[i]->year << "\n";
+    }
+    std::cout << std::endl;
+}
